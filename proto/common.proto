@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package im.protocol;
+
+message BaseRequest {
+  uint32 request_id = 1;
+  uint64 client_seq = 2;
+  string device_id = 3;
+}
+
+message BaseResponse {
+  uint32 request_id = 1;
+  uint32 error_code = 2;
+  string error_message = 3;
+}

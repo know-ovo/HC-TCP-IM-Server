@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package im.protocol;
+
+message LoginReq {
+  string user_id = 1;
+  string token = 2;
+  string device_id = 3;
+}
+
+message LoginResp {
+  uint32 result_code = 1;
+  string result_msg = 2;
+  string session_id = 3;
+}

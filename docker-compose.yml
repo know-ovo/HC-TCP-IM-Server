@@ -1,0 +1,29 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: my-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  mysql:
+    image: mysql:8.0
+    container_name: my-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: im_server
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/001_m2_reliable_message.sql:/docker-entrypoint-initdb.d/001_m2_reliable_message.sql:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  redis_data:
+  mysql_data:

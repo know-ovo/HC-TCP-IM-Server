@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package im.protocol;
+
+message P2PMessageReq {
+  string from_user_id = 1;
+  string to_user_id = 2;
+  string client_msg_id = 3;
+  string content = 4;
+}
+
+message P2PMessageResp {
+  uint32 result_code = 1;
+  string result_msg = 2;
+  uint32 msg_id = 3;
+  uint64 server_seq = 4;
+}
+
+message P2PMessageNotify {
+  uint64 msg_id = 1;
+  uint64 server_seq = 2;
+  string from_user_id = 3;
+  string to_user_id = 4;
+  string client_msg_id = 5;
+  string content = 6;
+  int64 timestamp = 7;
+}
+
+message BroadcastMessageReq {
+  string from_user_id = 1;
+  string content = 2;
+}
+
+message BroadcastMessageNotify {
+  string from_user_id = 1;
+  string content = 2;
+  int64 timestamp = 3;
+}
+
+message KickUserReq {
+  string target_user_id = 1;
+  string reason = 2;
+}
+
+message KickUserResp {
+  uint32 result_code = 1;
+  string result_msg = 2;
+}
+
+message MessageAckReq {
+  uint64 msg_id = 1;
+  uint64 server_seq = 2;
+  uint32 ack_code = 3;
+}
+
+message MessageAckResp {
+  uint32 result_code = 1;
+  string result_msg = 2;
+  uint64 server_seq = 3;
+}
+
+message PullOfflineReq {
+  string user_id = 1;
+  uint64 last_acked_seq = 2;
+  uint32 limit = 3;
+}
+
+message OfflineMessageItem {
+  uint64 msg_id = 1;
+  uint64 server_seq = 2;
+  string from_user_id = 3;
+  string to_user_id = 4;
+  string client_msg_id = 5;
+  string content = 6;
+  int64 timestamp = 7;
+}
+
+message PullOfflineResp {
+  uint32 result_code = 1;
+  string result_msg = 2;
+  uint64 next_begin_seq = 3;
+  repeated OfflineMessageItem messages = 4;
+}

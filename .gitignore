@@ -1,0 +1,16 @@
+build/
+.cache/
+logs/
+*.log
+*.o
+*.a
+*.so
+*.exe
+*.out
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package im.protocol;
+
+message HeartbeatReq {
+}
+
+message HeartbeatResp {
+  int64 server_time = 1;
+}
