@@ -1,16 +1,84 @@
-build/
-.cache/
-logs/
-*.log
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
 *.o
-*.a
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
 *.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
 *.exe
 *.out
-.idea/
+*.app
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# IDE - Visual Studio
+.vs/
+*.vcxproj.user
+*.vcxproj.filters
+*.vcxproj
+*.sln
+*.sdf
+*.opensdf
+*.cachefile
+
+# IDE - VS Code
 .vscode/
+*.code-workspace
+
+# IDE - CLion
+.idea/
+cmake-build-*/
+*.cmake
+CMakeLists.txt.user
+
+# Build directories
+build/
+bin/
+lib/
+Debug/
+Release/
+x64/
+x86/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
 *.swp
 *.swo
 *~
+
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
