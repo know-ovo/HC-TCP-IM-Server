@@ -66,6 +66,8 @@ Debug/
 Release/
 x64/
 x86/
+.cache/
+.build_linux/
 
 # Logs
 *.log
