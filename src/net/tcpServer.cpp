@@ -76,39 +76,50 @@ void TcpServer::start()
 
 void TcpServer::newConnection()
 {
-	struct sockaddr_in peerAddr;
-	socklen_t peerLen = sizeof(peerAddr);
-	int connfd = accept4(m_listenfd, (struct sockaddr*)&peerAddr, &peerLen, SOCK_NONBLOCK | SOCK_CLOEXEC);
-	if (connfd < 0)
+	while (true)
 	{
-		LOG_ERROR("TcpServer::newConnection - accept error: {}", errno);
-		return;
+		struct sockaddr_in peerAddr;
+		socklen_t peerLen = sizeof(peerAddr);
+		int connfd = accept4(m_listenfd, (struct sockaddr*)&peerAddr, &peerLen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+		if (connfd < 0)
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
+				return;
+			}
+			if (errno == EINTR)
+			{
+				continue;
+			}
+			LOG_ERROR("TcpServer::newConnection - accept error: {}", errno);
+			return;
+		}
+
+		char buf[64];
+		snprintf(buf, sizeof(buf), ":%s#%d", m_name.c_str(), m_nextConnId++);
+		std::string connName = buf;
+
+		struct sockaddr_in localAddr;
+		socklen_t localLen = sizeof(localAddr);
+		getsockname(connfd, (struct sockaddr*)&localAddr, &localLen);
+
+		InetAddress localAddrObj(localAddr);
+		InetAddress peerAddrObj(peerAddr);
+
+		LOG_INFO("TcpServer::newConnection - new connection {} from {}:{}",
+				 connName,
+				 peerAddrObj.toIp(),
+				 peerAddrObj.port());
+
+		auto conn = std::make_shared<TcpConnection>(m_loop, connName, connfd, localAddrObj, peerAddrObj);
+		m_connections[connName] = conn;
+
+		conn->setConnectionCallback(m_connectionCallback);
+		conn->setMessageCallback(m_messageCallback);
+		conn->setCloseCallback([this](const std::shared_ptr<TcpConnection>& c) { removeConnection(c); });
+
+		m_loop->queueInLoop([conn]() { conn->connectEstablished(); });
 	}
-
-	char buf[64];
-	snprintf(buf, sizeof(buf), ":%s#%d", m_name.c_str(), m_nextConnId++);
-	std::string connName = buf;
-
-	struct sockaddr_in localAddr;
-	socklen_t localLen = sizeof(localAddr);
-	getsockname(connfd, (struct sockaddr*)&localAddr, &localLen);
-
-	InetAddress localAddrObj(localAddr);
-	InetAddress peerAddrObj(peerAddr);
-
-	LOG_INFO("TcpServer::newConnection - new connection {} from {}:{}",
-			 connName,
-			 peerAddrObj.toIp(),
-			 peerAddrObj.port());
-
-	auto conn = std::make_shared<TcpConnection>(m_loop, connName, connfd, localAddrObj, peerAddrObj);
-	m_connections[connName] = conn;
-
-	conn->setConnectionCallback(m_connectionCallback);
-	conn->setMessageCallback(m_messageCallback);
-	conn->setCloseCallback([this](const std::shared_ptr<TcpConnection>& c) { removeConnection(c); });
-
-	m_loop->queueInLoop([conn]() { conn->connectEstablished(); });
 }
 
 void TcpServer::removeConnection(const std::shared_ptr<TcpConnection>& conn)

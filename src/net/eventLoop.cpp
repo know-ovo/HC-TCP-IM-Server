@@ -43,6 +43,16 @@ EventLoop::~EventLoop()
 {
     LOG_DEBUG("EventLoop {} destructing in thread {}", static_cast<const void*>(this), m_threadId);
     assert(!m_looping);
+    if (m_wakeupChannel)
+    {
+        m_wakeupChannel->disableAll();
+        m_wakeupChannel->remove();
+    }
+    if (m_wakeupFd >= 0)
+    {
+        ::close(m_wakeupFd);
+        m_wakeupFd = -1;
+    }
     t_loop_in_this_thread = nullptr;
 }
 

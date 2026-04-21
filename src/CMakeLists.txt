@@ -117,7 +117,7 @@ add_executable(benchmarkClient
 	../test/benchmarkClient.cpp
 )
 target_include_directories(benchmarkClient PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(benchmarkClient PRIVATE spdlog::spdlog nlohmann_json::nlohmann_json pthread)
+target_link_libraries(benchmarkClient PRIVATE server_lib spdlog::spdlog nlohmann_json::nlohmann_json pthread)  #添加server_lib
 
 if(HIREDIS_FOUND)
 	target_include_directories(benchmarkClient PRIVATE ${HIREDIS_INCLUDE_DIRS})
@@ -131,7 +131,7 @@ add_executable(interactiveClient
 	../test/interactiveClient.cpp
 )
 target_include_directories(interactiveClient PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(interactiveClient PRIVATE spdlog::spdlog nlohmann_json::nlohmann_json pthread)
+target_link_libraries(interactiveClient PRIVATE server_lib spdlog::spdlog nlohmann_json::nlohmann_json pthread)  #添加server_lib
 
 if(BUILD_TESTING)
 	enable_testing()

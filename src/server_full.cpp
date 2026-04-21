@@ -16,6 +16,7 @@
 #include <memory>
 #include <algorithm>
 #include <csignal>
+#include <string>
 #include "base/log.h"
 #include "base/config.h"
 #include "base/threadpool.h"
@@ -57,20 +58,66 @@ void SignalHandler(int sig)
     }
 }
 
-int main(int /*argc*/, char* /*argv*/[])
+int main(int argc, char* argv[])
 {
-    Log::init("server_full", "logs/server_full.log", spdlog::level::info);
+    std::string configPath = "conf/server.ini";
+    for (int i = 1; i < argc; ++i)
+    {
+        const std::string arg = argv[i];
+        if ((arg == "--config" || arg == "-c") && i + 1 < argc)
+        {
+            configPath = argv[++i];
+        }
+        else if (arg == "--help" || arg == "-h")
+        {
+            std::cout << "Usage: " << argv[0] << " [--config <path>]" << std::endl;
+            return 0;
+        }
+    }
+
+    Config& config = Config::instance();
+    if (!config.load(configPath))
+    {
+        std::cerr << "Failed to load config file: " << configPath << std::endl;
+        return -1;
+    }
+
+    const auto parseLogLevel = [](const std::string& levelName) {
+        const std::string lowered = util::ToLower(levelName);
+        if (lowered == "trace")
+        {
+            return static_cast<int>(spdlog::level::trace);
+        }
+        if (lowered == "debug")
+        {
+            return static_cast<int>(spdlog::level::debug);
+        }
+        if (lowered == "warn" || lowered == "warning")
+        {
+            return static_cast<int>(spdlog::level::warn);
+        }
+        if (lowered == "error")
+        {
+            return static_cast<int>(spdlog::level::err);
+        }
+        if (lowered == "critical" || lowered == "fatal")
+        {
+            return static_cast<int>(spdlog::level::critical);
+        }
+        return static_cast<int>(spdlog::level::info);
+    };
+
+    const std::string logPath = config.getString("log", "path", "logs/server_full.log");
+    const int logLevel = parseLogLevel(config.getString("log", "level", "info"));
+    const size_t logMaxFileSize = static_cast<size_t>(config.getInt("log", "max_file_size", 100 * 1024 * 1024));
+    const size_t logMaxFiles = static_cast<size_t>(config.getInt("log", "max_files", 3));
+    Log::init("server_full", logPath, logLevel, logMaxFileSize, logMaxFiles);
 
     LOG_INFO("========================================");
     LOG_INFO("HighConcurrencyTCPGateway (Full) starting...");
+    LOG_INFO("Build: {} {}", __DATE__, __TIME__);
+    LOG_INFO("Config file: {}", configPath);
     LOG_INFO("========================================");
-
-    Config& config = Config::instance();
-    if (!config.load("conf/server.ini"))
-    {
-        LOG_ERROR("Failed to load config file");
-        return -1;
-    }
 
     int port = config.getInt("server", "port", 8888);
     int workerThreads = config.getInt("server", "worker_threads", 4);

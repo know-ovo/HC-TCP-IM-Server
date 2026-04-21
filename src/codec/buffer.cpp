@@ -41,7 +41,10 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
 	if (n < 0)
 	{
 		*savedErrno = errno;
-		LOG_ERROR("Buffer::readFd - readv error: %d", errno);
+		if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR)
+		{
+			LOG_ERROR("Buffer::readFd - readv error: {}", errno);
+		}
 	}
 	else if (static_cast<size_t>(n) <= writable)
 	{

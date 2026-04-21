@@ -167,8 +167,6 @@ void AuthService::login(const std::shared_ptr<TcpConnection>& conn,
 						const std::string& deviceId,
 						AuthCallback callback)
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
-
 	LOG_INFO("AuthService::login - userId: {}, deviceId: {}", userId, deviceId);
 
 	if (!validateToken(userId, token))
@@ -184,19 +182,27 @@ void AuthService::login(const std::shared_ptr<TcpConnection>& conn,
 	context->m_deviceId = deviceId;
 	context->m_sessionId = generateSessionId();
 	context->m_loginTime = util::GetTimestampMs();
-	context->m_nodeId = m_nodeId;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        context->m_nodeId = m_nodeId;
+    }
 	context->m_authenticated = true;
 
-	m_connToUser[connId] = context;
+    std::shared_ptr<storage::SessionRepository> sessionRepo;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_connToUser[connId] = context;
 
-	auto it = m_userToContext.find(userId);
-	if (it != m_userToContext.end())
-	{
-		LOG_WARN("AuthService::login - user {} already logged in, replacing", userId);
-	}
-	m_userToContext[userId] = context;
+        auto it = m_userToContext.find(userId);
+        if (it != m_userToContext.end())
+        {
+            LOG_WARN("AuthService::login - user {} already logged in, replacing", userId);
+        }
+        m_userToContext[userId] = context;
+        sessionRepo = m_sessionRepository;
+    }
 
-    if (m_sessionRepository)
+    if (sessionRepo)
     {
         storage::SessionRecord record;
         record.sessionId = context->m_sessionId;
@@ -205,7 +211,7 @@ void AuthService::login(const std::shared_ptr<TcpConnection>& conn,
         record.createdAtMs = context->m_loginTime;
         record.expiresAtMs = context->m_loginTime + static_cast<int64_t>(m_sessionExpire) * 1000;
         std::string repoError;
-        if (!m_sessionRepository->createSession(record, repoError))
+        if (!sessionRepo->createSession(record, repoError))
         {
             LOG_WARN("AuthService::login - failed to persist session to MySQL: {}", repoError);
         }

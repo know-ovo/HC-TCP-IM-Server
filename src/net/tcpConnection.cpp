@@ -278,8 +278,11 @@ void TcpConnection::send(Buffer* buffer)
 		}
 		else
 		{
-			void (TcpConnection::*fp)(const std::string&) = &TcpConnection::send;
-			m_loop->queueInLoop(std::bind(fp, this, buffer->retrieveAllAsString()));
+			auto self = shared_from_this();
+			std::string message = buffer->retrieveAllAsString();
+			m_loop->queueInLoop([self, message = std::move(message)]() {
+				self->sendInLoop(message.data(), message.size());
+			});
 		}
 	}
 }
