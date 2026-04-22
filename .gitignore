@@ -84,3 +84,7 @@ logs/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+
+# ignore documents
+docs/面试导向/

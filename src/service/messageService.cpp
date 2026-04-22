@@ -388,7 +388,15 @@ void MessageService::broadcastMessage(const std::string& fromUserId, const std::
     notify.content = content;
     notify.timestamp = util::GetTimestampMs();
 
-    const std::string notifyMsg = serializer::Serialize(notify);
+    std::string notifyMsg;
+    if (m_broadcastNotifyEncoder)
+    {
+        notifyMsg = m_broadcastNotifyEncoder(notify);
+    }
+    else
+    {
+        notifyMsg = serializer::Serialize(notify);
+    }
     const uint64_t msgId = static_cast<uint64_t>(util::GetTimestampMs());
 
     for (const auto& pair : m_userToConn)
@@ -416,7 +424,15 @@ void MessageService::deliverLocked(const std::shared_ptr<TcpConnection>& conn, s
         return;
     }
 
-    const std::string notifyMsg = serializer::Serialize(message.notify);
+    std::string notifyMsg;
+    if (m_p2pNotifyEncoder)
+    {
+        notifyMsg = m_p2pNotifyEncoder(message.notify);
+    }
+    else
+    {
+        notifyMsg = serializer::Serialize(message.notify);
+    }
     Buffer buffer;
     protocol::PacketHeader header;
     header.command = protocol::CmdP2pMsgNotify;

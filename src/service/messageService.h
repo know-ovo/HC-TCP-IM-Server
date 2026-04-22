@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file messageService.h
  * @brief 消息服务类
  * @author IM Server Team
@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <mutex>
 #include <vector>
+#include <functional>
 #include "codec/protocol.h"
 #include "net/tcpConnection.h"
 #include "service/authService.h"
@@ -206,6 +207,16 @@ public:
      */
     void broadcastMessage(const std::string& fromUserId, const std::string& content);
 
+    void setP2PNotifyEncoder(std::function<std::string(const protocol::P2PMsgNotify&)> encoder)
+    {
+        m_p2pNotifyEncoder = std::move(encoder);
+    }
+
+    void setBroadcastNotifyEncoder(std::function<std::string(const protocol::BroadcastMsgNotify&)> encoder)
+    {
+        m_broadcastNotifyEncoder = std::move(encoder);
+    }
+
 private:
     void deliverLocked(const std::shared_ptr<TcpConnection>& conn, storage::StoredMessage& message, std::string& errorMsg);
 
@@ -222,4 +233,6 @@ private:
     int m_retryBackoffMs { 3000 };
     uint32_t m_maxRetryCount { 5 };
     size_t m_retryBatchSize { 200 };
+    std::function<std::string(const protocol::P2PMsgNotify&)> m_p2pNotifyEncoder;
+    std::function<std::string(const protocol::BroadcastMsgNotify&)> m_broadcastNotifyEncoder;
 };

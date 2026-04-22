@@ -12,7 +12,7 @@ message P2PMessageReq {
 message P2PMessageResp {
   uint32 result_code = 1;
   string result_msg = 2;
-  uint32 msg_id = 3;
+  uint64 msg_id = 3;
   uint64 server_seq = 4;
 }
 

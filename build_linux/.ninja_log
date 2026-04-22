@@ -1,0 +1,98 @@
+# ninja log v5
+132	1367	1776857762259360900	/mnt/d/Personal_project/High-Concurrency TCP Message Server/.cache/deps/spdlog-build/CMakeFiles/spdlog.dir/src/file_sinks.cpp.o	9961bc4073284315
+126	1549	1776857762426214800	/mnt/d/Personal_project/High-Concurrency TCP Message Server/.cache/deps/spdlog-build/CMakeFiles/spdlog.dir/src/stdout_sinks.cpp.o	7ecf7855316f3dba
+130	1765	1776857762628455000	/mnt/d/Personal_project/High-Concurrency TCP Message Server/.cache/deps/spdlog-build/CMakeFiles/spdlog.dir/src/color_sinks.cpp.o	e8eb8d6dc7c25ddd
+1553	2382	1776857763205609900	/mnt/d/Personal_project/High-Concurrency TCP Message Server/.cache/deps/spdlog-build/CMakeFiles/spdlog.dir/src/cfg.cpp.o	d97ba3c360cbd5bf
+1381	2444	1776857763262810300	/mnt/d/Personal_project/High-Concurrency TCP Message Server/.cache/deps/spdlog-build/CMakeFiles/spdlog.dir/src/async.cpp.o	465e01b421ef2d31
+2449	3300	1776857764053841700	src/CMakeFiles/server_lib.dir/base/config.cpp.o	e4e32f6f1ac19410
+2386	3589	1776857764323586600	src/CMakeFiles/server_lib.dir/base/log.cpp.o	ae5e3302ff74bcf7
+3333	4017	1776857764722510100	src/CMakeFiles/server_lib.dir/base/util.cpp.o	7d87147bf5d22305
+1770	4698	1776857765361293100	/mnt/d/Personal_project/High-Concurrency TCP Message Server/.cache/deps/spdlog-build/CMakeFiles/spdlog.dir/src/bundled_fmtlib_format.cpp.o	a6dd027525a3075c
+3605	4888	1776857765532553500	src/CMakeFiles/server_lib.dir/base/threadpool.cpp.o	635b71395cf35737
+125	5040	1776857765677974700	/mnt/d/Personal_project/High-Concurrency TCP Message Server/.cache/deps/spdlog-build/CMakeFiles/spdlog.dir/src/spdlog.cpp.o	a7a3c8f97be440b9
+5045	5387	1776857765996340100	/mnt/d/Personal_project/High-Concurrency TCP Message Server/.cache/deps/spdlog-build/libspdlog.a	11e48911e8000f67
+4026	5412	1776857766015018600	src/CMakeFiles/server_lib.dir/base/redisClient.cpp.o	cb5729debdcde8c0
+5417	5533	1776857766128465900	src/CMakeFiles/server_lib.dir/net/currentThread.cpp.o	9af03b8fb4cb194d
+5537	5931	1776857766497341300	src/CMakeFiles/server_lib.dir/net/timestamp.cpp.o	995cba61ff1d510f
+4894	6003	1776857766562581800	src/CMakeFiles/server_lib.dir/net/channel.cpp.o	8ab840bb8710154b
+4702	6077	1776857766629379400	src/CMakeFiles/server_lib.dir/net/eventLoop.cpp.o	5a2053a988f45dad
+5389	6681	1776857767187582700	src/CMakeFiles/server_lib.dir/net/epollPoller.cpp.o	8c67a303d0b286d7
+6082	7088	1776857767564329300	src/CMakeFiles/server_lib.dir/codec/buffer.cpp.o	b0f712f1e232535c
+5934	7269	1776857767730855400	src/CMakeFiles/server_lib.dir/net/tcpServer.cpp.o	4a9222e9876a977d
+6009	7407	1776857767858145600	src/CMakeFiles/server_lib.dir/net/tcpConnection.cpp.o	e3f954bec02ed80c
+7092	7452	1776857767901273800	src/CMakeFiles/server_lib.dir/codec/protocol.cpp.o	63adecc4b2b8bdf4
+6684	7699	1776857768127110900	src/CMakeFiles/server_lib.dir/codec/codec.cpp.o	570f54f154496141
+7411	7753	1776857768177091700	src/CMakeFiles/server_lib.dir/codec/protoCodec.cpp.o	f2eac39558e392c9
+7456	8271	1776857768649977500	src/CMakeFiles/server_lib.dir/storage/mysqlClient.cpp.o	add0b9a43229e466
+7757	8941	1776857769268418200	src/CMakeFiles/server_lib.dir/storage/messageRepository.cpp.o	4a73b370c64763ba
+8285	9349	1776857769650338000	src/CMakeFiles/server_lib.dir/storage/deliveryRepository.cpp.o	a6951faf75b3cdbc
+7704	9546	1776857769831349300	src/CMakeFiles/server_lib.dir/storage/messageStore.cpp.o	b30f10e9fb819c90
+8945	9729	1776857769999687500	src/CMakeFiles/server_lib.dir/storage/sessionRepository.cpp.o	796d35d13aaeedf4
+7275	11428	1776857771569875900	src/CMakeFiles/server_lib.dir/codec/messageSerializer.cpp.o	80ef7198e26380bd
+11440	11959	1776857772060645200	src/CMakeFiles/server_lib.dir/service/overloadProtectService.cpp.o	3cbc1d62a2ae4258
+9550	12174	1776857772258094500	src/CMakeFiles/server_lib.dir/service/heartbeatService.cpp.o	101d84f162832303
+9734	12394	1776857772459654200	src/CMakeFiles/server_lib.dir/service/messageService.cpp.o	44cccd59426e154a
+12178	12632	1776857772683434600	src/CMakeFiles/server_lib.dir/infra/rateLimiter.cpp.o	642321d47b27c289
+12398	12745	1776857772785741100	src/CMakeFiles/server_lib.dir/infra/circuitBreaker.cpp.o	a183ccd0ac770290
+11964	12794	1776857772831116700	src/CMakeFiles/server_lib.dir/service/routingService.cpp.o	581fb627815aa171
+12750	13436	1776857773420648800	src/CMakeFiles/server_lib.dir/infra/traceContext.cpp.o	899aceec4771e142
+12635	13473	1776857773457320400	src/CMakeFiles/server_lib.dir/infra/metricsRegistry.cpp.o	99035b82df57ea18
+9354	13784	1776857773742914100	src/CMakeFiles/server_lib.dir/service/authService.cpp.o	4626320cc424eb7e
+12799	13914	1776857773865385600	src/CMakeFiles/server_lib.dir/http/metricsServer.cpp.o	39f71779b215bdcd
+13918	14438	1776857774352635400	src/libserver_lib.a	ae8c171dfb1acdc7
+13478	14589	1776857774488412500	src/CMakeFiles/benchmarkClient.dir/base/log.cpp.o	8cf062c15be1b5dd
+13790	14708	1776857774600008600	src/CMakeFiles/benchmarkClient.dir/base/config.cpp.o	52c118b7009f52ec
+14439	15077	1776857774941597900	src/CMakeFiles/benchmarkClient.dir/base/util.cpp.o	2b8da5e7bf5a6bcb
+14593	15818	1776857775623510100	src/CMakeFiles/benchmarkClient.dir/base/threadpool.cpp.o	f795f7c7ffdbc216
+15081	15912	1776857775711430600	src/CMakeFiles/benchmarkClient.dir/codec/buffer.cpp.o	8cfb7a9e217e765b
+14711	16134	1776857775916923800	src/CMakeFiles/benchmarkClient.dir/base/redisClient.cpp.o	48c392c49657e518
+15916	16190	1776857775968138200	src/CMakeFiles/benchmarkClient.dir/codec/protocol.cpp.o	4c758b23616a7534
+16194	16474	1776857776231651300	src/CMakeFiles/benchmarkClient.dir/codec/protoCodec.cpp.o	28c133f031813d87
+15820	16700	1776857776436948400	src/CMakeFiles/benchmarkClient.dir/codec/codec.cpp.o	46a44c9466538315
+16705	17774	1776857777432992400	src/CMakeFiles/interactiveClient.dir/base/log.cpp.o	6009f0fa12a13bdc
+17777	18518	1776857778122146600	src/CMakeFiles/interactiveClient.dir/base/config.cpp.o	6d3132e7d15de900
+13441	18587	1776857778183040400	src/CMakeFiles/server_full.dir/server_full.cpp.o	5270e1486609f475
+16479	19126	1776857778681074500	src/CMakeFiles/benchmarkClient.dir/__/tests/benchmark/benchmarkClient.cpp.o	a7c373b1f4546a57
+18519	19218	1776857778766127100	src/CMakeFiles/interactiveClient.dir/base/util.cpp.o	8fe9a1fcd49d1c
+18595	19770	1776857779276286700	bin/server_full	c07ec8dd4244f0b9
+16137	19892	1776857779388362300	src/CMakeFiles/benchmarkClient.dir/codec/messageSerializer.cpp.o	e1c3ec82148d3469
+19220	20174	1776857779649872800	src/CMakeFiles/interactiveClient.dir/codec/buffer.cpp.o	77640573a46e3b2d
+19131	20349	1776857779811990100	src/CMakeFiles/interactiveClient.dir/base/threadpool.cpp.o	6e8c1e15a563fdea
+20178	20591	1776857780034951900	src/CMakeFiles/interactiveClient.dir/codec/protocol.cpp.o	b0139e7f4dc3e36b
+19772	20869	1776857780293180500	src/CMakeFiles/interactiveClient.dir/codec/codec.cpp.o	a2f3814433a840f4
+20594	20974	1776857780388377800	src/CMakeFiles/interactiveClient.dir/codec/protoCodec.cpp.o	ec79e5619d04387
+19895	21034	1776857780440261600	bin/benchmarkClient	bc1300a146a675d1
+20872	23151	1776857782416312300	src/CMakeFiles/interactiveClient.dir/__/tests/interact/interactiveClient.cpp.o	a014f29ef02ef5b
+20351	24248	1776857783436901700	src/CMakeFiles/interactiveClient.dir/codec/messageSerializer.cpp.o	46ff38fd92cc0f20
+24250	25038	1776857784172912000	bin/interactiveClient	622923f729fec29f
+384	2273	1776859155947621500	src/CMakeFiles/benchmarkClient.dir/base/log.cpp.o	8cf062c15be1b5dd
+381	2283	1776859155947621500	src/CMakeFiles/server_lib.dir/base/log.cpp.o	ae5e3302ff74bcf7
+2286	2861	1776859156497157900	src/libserver_lib.a	ae8c171dfb1acdc7
+383	3319	1776859156920148400	src/CMakeFiles/server.dir/server.cpp.o	c945e6a7b4370b53
+386	3835	1776859157390627500	src/CMakeFiles/benchmarkClient.dir/__/tests/benchmark/benchmarkClient.cpp.o	a7c373b1f4546a57
+2277	3876	1776859157438530500	src/CMakeFiles/interactiveClient.dir/base/log.cpp.o	6009f0fa12a13bdc
+2862	4287	1776859157821163000	bin/server_full	c07ec8dd4244f0b9
+3322	4732	1776859158235853700	bin/server	74b8aab66f436b87
+3840	5100	1776859158573576100	bin/benchmarkClient	bc1300a146a675d1
+4288	5621	1776859159058015600	src/CMakeFiles/buffer_test.dir/__/tests/codec/buffer_test.cpp.o	3e77e50e0318d78b
+4733	5892	1776859159313414400	src/CMakeFiles/rateLimiter_test.dir/__/tests/infra/rateLimiter_test.cpp.o	692037a0275d3a52
+5101	6190	1776859159585905500	src/CMakeFiles/circuitBreaker_test.dir/__/tests/infra/circuitBreaker_test.cpp.o	6881a2147fee629e
+5633	6446	1776859159827567100	bin/buffer_test	e44a91a5000dec03
+5895	6797	1776859160150649900	bin/rateLimiter_test	30d947ab1db4b3ea
+3878	6835	1776859160184451700	src/CMakeFiles/interactiveClient.dir/__/tests/interact/interactiveClient.cpp.o	a014f29ef02ef5b
+6196	7162	1776859160489534300	bin/circuitBreaker_test	8b960e0656685158
+6446	7813	1776859161088720300	src/CMakeFiles/overloadProtectService_test.dir/__/tests/service/overloadProtectService_test.cpp.o	30d482baf85a14f0
+6840	7964	1776859161228609900	bin/interactiveClient	622923f729fec29f
+6798	8396	1776859161628216200	src/CMakeFiles/message_flow_test.dir/__/tests/integration/message_flow_test.cpp.o	40b1471976d247b3
+7818	8651	1776859161866023100	bin/overloadProtectService_test	ff325fd167292232
+8400	9412	1776859162568946900	bin/message_flow_test	a8f235cfca0151e1
+7163	9512	1776859162657504000	src/CMakeFiles/server_benchmark_core.dir/__/tests/benchmark/core_benchmark.cpp.o	e370052b2cd5952d
+9516	10327	1776859163413605800	bin/server_benchmark_core	3a66dbaadbebb1e8
+358	4209	1776860706615812100	src/CMakeFiles/benchmarkClient.dir/__/tests/benchmark/benchmarkClient.cpp.o	a7c373b1f4546a57
+4214	5072	1776860707415690900	bin/benchmarkClient	bc1300a146a675d1
+387	4536	1776861925178453800	src/CMakeFiles/benchmarkClient.dir/__/tests/benchmark/benchmarkClient.cpp.o	a7c373b1f4546a57
+4542	5522	1776861926094197500	bin/benchmarkClient	bc1300a146a675d1
+359	2471	1776863196110323800	src/CMakeFiles/benchmarkClient.dir/__/tests/benchmark/benchmarkClient.cpp.o	a7c373b1f4546a57
+2476	3372	1776863196948513900	bin/benchmarkClient	bc1300a146a675d1
+336	4442	1776865691174790200	src/CMakeFiles/benchmarkClient.dir/__/tests/benchmark/benchmarkClient.cpp.o	a7c373b1f4546a57
+4448	5311	1776865691987569200	bin/benchmarkClient	bc1300a146a675d1

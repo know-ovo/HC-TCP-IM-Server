@@ -44,6 +44,12 @@
 #include "base/redisClient.h"
 #endif
 
+#ifdef HAVE_PROTOBUF
+#include "auth.pb.h"
+#include "heartbeat.pb.h"
+#include "message.pb.h"
+#endif
+
 using namespace std;
 
 EventLoop* g_loop = nullptr;
@@ -131,6 +137,7 @@ int main(int argc, char* argv[])
     int lowWaterMarkBytes = config.getInt("net", "low_water_mark_bytes", 256 * 1024);
     int maxOutputBufferBytes = config.getInt("net", "max_output_buffer_bytes", 4 * 1024 * 1024);
     string payloadFormatStr = config.getString("protocol", "payload_format", "json");
+    bool compatibleJson = config.getBool("protocol", "compatible_json", true);
     int protocolVersion = config.getInt("protocol", "version", protocol::kProtocolVersionV1);
     bool clusterEnabled = config.getBool("cluster", "enabled", false);
     string nodeId = config.getString("cluster", "node_id", "node-1");
@@ -367,6 +374,281 @@ int main(int argc, char* argv[])
         conn->send(&buffer);
     };
 
+    auto decodeLoginReq = [&](const string& payload, protocol::LoginReq& out) -> bool {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Deserialize(payload, out);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::LoginReq pb;
+        if (pb.ParseFromString(payload))
+        {
+            out.userId = pb.user_id();
+            out.token = pb.token();
+            out.deviceId = pb.device_id();
+            return true;
+        }
+#endif
+        return compatibleJson ? serializer::Deserialize(payload, out) : false;
+    };
+
+    auto encodeLoginResp = [&](const protocol::LoginResp& msg) -> string {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Serialize(msg);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::LoginResp pb;
+        pb.set_result_code(msg.resultCode);
+        pb.set_result_msg(msg.resultMsg);
+        pb.set_session_id(msg.sessionId);
+        string out;
+        if (pb.SerializeToString(&out))
+        {
+            return out;
+        }
+#endif
+        return serializer::Serialize(msg);
+    };
+
+    auto encodeHeartbeatResp = [&](const protocol::HeartbeatResp& msg) -> string {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Serialize(msg);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::HeartbeatResp pb;
+        pb.set_server_time(msg.serverTime);
+        string out;
+        if (pb.SerializeToString(&out))
+        {
+            return out;
+        }
+#endif
+        return serializer::Serialize(msg);
+    };
+
+    auto decodeP2PReq = [&](const string& payload, protocol::P2PMsgReq& out) -> bool {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Deserialize(payload, out);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::P2PMessageReq pb;
+        if (pb.ParseFromString(payload))
+        {
+            out.fromUserId = pb.from_user_id();
+            out.toUserId = pb.to_user_id();
+            out.clientMsgId = pb.client_msg_id();
+            out.content = pb.content();
+            return true;
+        }
+#endif
+        return compatibleJson ? serializer::Deserialize(payload, out) : false;
+    };
+
+    auto encodeP2PResp = [&](const protocol::P2PMsgResp& msg) -> string {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Serialize(msg);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::P2PMessageResp pb;
+        pb.set_result_code(msg.resultCode);
+        pb.set_result_msg(msg.resultMsg);
+        pb.set_msg_id(msg.msgId);
+        pb.set_server_seq(msg.serverSeq);
+        string out;
+        if (pb.SerializeToString(&out))
+        {
+            return out;
+        }
+#endif
+        return serializer::Serialize(msg);
+    };
+
+    auto encodeP2PNotify = [&](const protocol::P2PMsgNotify& msg) -> string {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Serialize(msg);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::P2PMessageNotify pb;
+        pb.set_msg_id(msg.msgId);
+        pb.set_server_seq(msg.serverSeq);
+        pb.set_from_user_id(msg.fromUserId);
+        pb.set_to_user_id(msg.toUserId);
+        pb.set_client_msg_id(msg.clientMsgId);
+        pb.set_content(msg.content);
+        pb.set_timestamp(msg.timestamp);
+        string out;
+        if (pb.SerializeToString(&out))
+        {
+            return out;
+        }
+#endif
+        return serializer::Serialize(msg);
+    };
+
+    auto decodeAckReq = [&](const string& payload, protocol::MessageAckReq& out) -> bool {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Deserialize(payload, out);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::MessageAckReq pb;
+        if (pb.ParseFromString(payload))
+        {
+            out.msgId = pb.msg_id();
+            out.serverSeq = pb.server_seq();
+            out.ackCode = pb.ack_code();
+            return true;
+        }
+#endif
+        return compatibleJson ? serializer::Deserialize(payload, out) : false;
+    };
+
+    auto encodeAckResp = [&](const protocol::MessageAckResp& msg) -> string {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Serialize(msg);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::MessageAckResp pb;
+        pb.set_result_code(msg.resultCode);
+        pb.set_result_msg(msg.resultMsg);
+        pb.set_server_seq(msg.serverSeq);
+        string out;
+        if (pb.SerializeToString(&out))
+        {
+            return out;
+        }
+#endif
+        return serializer::Serialize(msg);
+    };
+
+    auto decodePullReq = [&](const string& payload, protocol::PullOfflineReq& out) -> bool {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Deserialize(payload, out);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::PullOfflineReq pb;
+        if (pb.ParseFromString(payload))
+        {
+            out.userId = pb.user_id();
+            out.lastAckedSeq = pb.last_acked_seq();
+            out.limit = pb.limit();
+            return true;
+        }
+#endif
+        return compatibleJson ? serializer::Deserialize(payload, out) : false;
+    };
+
+    auto encodePullResp = [&](const protocol::PullOfflineResp& msg) -> string {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Serialize(msg);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::PullOfflineResp pb;
+        pb.set_result_code(msg.resultCode);
+        pb.set_result_msg(msg.resultMsg);
+        pb.set_next_begin_seq(msg.nextBeginSeq);
+        for (const auto& item : msg.messages)
+        {
+            auto* pbItem = pb.add_messages();
+            pbItem->set_msg_id(item.msgId);
+            pbItem->set_server_seq(item.serverSeq);
+            pbItem->set_from_user_id(item.fromUserId);
+            pbItem->set_to_user_id(item.toUserId);
+            pbItem->set_client_msg_id(item.clientMsgId);
+            pbItem->set_content(item.content);
+            pbItem->set_timestamp(item.timestamp);
+        }
+        string out;
+        if (pb.SerializeToString(&out))
+        {
+            return out;
+        }
+#endif
+        return serializer::Serialize(msg);
+    };
+
+    auto decodeBroadcastReq = [&](const string& payload, protocol::BroadcastMsgReq& out) -> bool {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Deserialize(payload, out);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::BroadcastMessageReq pb;
+        if (pb.ParseFromString(payload))
+        {
+            out.fromUserId = pb.from_user_id();
+            out.content = pb.content();
+            return true;
+        }
+#endif
+        return compatibleJson ? serializer::Deserialize(payload, out) : false;
+    };
+
+    auto encodeBroadcastNotify = [&](const protocol::BroadcastMsgNotify& msg) -> string {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Serialize(msg);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::BroadcastMessageNotify pb;
+        pb.set_from_user_id(msg.fromUserId);
+        pb.set_content(msg.content);
+        pb.set_timestamp(msg.timestamp);
+        string out;
+        if (pb.SerializeToString(&out))
+        {
+            return out;
+        }
+#endif
+        return serializer::Serialize(msg);
+    };
+
+    auto decodeKickReq = [&](const string& payload, protocol::KickUserReq& out) -> bool {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Deserialize(payload, out);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::KickUserReq pb;
+        if (pb.ParseFromString(payload))
+        {
+            out.targetUserId = pb.target_user_id();
+            out.reason = pb.reason();
+            return true;
+        }
+#endif
+        return compatibleJson ? serializer::Deserialize(payload, out) : false;
+    };
+
+    auto encodeKickResp = [&](const protocol::KickUserResp& msg) -> string {
+        if (payloadFormat == protocol::PayloadFormat::Json)
+        {
+            return serializer::Serialize(msg);
+        }
+#ifdef HAVE_PROTOBUF
+        im::protocol::KickUserResp pb;
+        pb.set_result_code(msg.resultCode);
+        pb.set_result_msg(msg.resultMsg);
+        string out;
+        if (pb.SerializeToString(&out))
+        {
+            return out;
+        }
+#endif
+        return serializer::Serialize(msg);
+    };
+
+    messageService->setP2PNotifyEncoder(encodeP2PNotify);
+    messageService->setBroadcastNotifyEncoder(encodeBroadcastNotify);
+
     auto submitBusinessTask = [&](const std::string& taskName,
                                   const infra::TraceContext& traceContext,
                                   auto&& task) {
@@ -427,7 +709,7 @@ int main(int argc, char* argv[])
                 protocol::LoginResp resp;
                 resp.resultCode = 1;
                 resp.resultMsg = "rate limited";
-                sendPacket(conn, protocol::CmdLoginResp, requestId, serializer::Serialize(resp),
+                sendPacket(conn, protocol::CmdLoginResp, requestId, encodeLoginResp(resp),
                            protocol::kFlagResponse, 0, 0, protocol::ErrServerBusy);
             }
             else if (command == protocol::CmdP2pMsgReq)
@@ -435,7 +717,7 @@ int main(int argc, char* argv[])
                 protocol::P2PMsgResp resp{};
                 resp.resultCode = 1;
                 resp.resultMsg = "rate limited";
-                sendPacket(conn, protocol::CmdP2pMsgResp, requestId, serializer::Serialize(resp),
+                sendPacket(conn, protocol::CmdP2pMsgResp, requestId, encodeP2PResp(resp),
                            protocol::kFlagResponse, 0, 0, protocol::ErrServerBusy);
             }
             else if (command == protocol::CmdBroadcastMsgReq)
@@ -448,7 +730,21 @@ int main(int argc, char* argv[])
         if (command == protocol::CmdLoginReq)
         {
             protocol::LoginReq loginReq;
-            serializer::Deserialize(message, loginReq);
+            if (!decodeLoginReq(message, loginReq))
+            {
+                protocol::LoginResp loginResp;
+                loginResp.resultCode = 1;
+                loginResp.resultMsg = "invalid login payload";
+                sendPacket(conn,
+                           protocol::CmdLoginResp,
+                           requestId,
+                           encodeLoginResp(loginResp),
+                           protocol::kFlagResponse,
+                           0,
+                           0,
+                           protocol::ErrInvalidPacket);
+                return;
+            }
             metricsRegistry.incCounter("im_login_qps", 1, "Inbound login request count");
             infra::TraceContext loginTrace = infra::CurrentTraceContext();
             loginTrace.userId = loginReq.userId;
@@ -469,7 +765,7 @@ int main(int argc, char* argv[])
                             sendPacket(conn,
                                        protocol::CmdLoginResp,
                                        requestId,
-                                       serializer::Serialize(loginResp),
+                                       encodeLoginResp(loginResp),
                                        protocol::kFlagResponse,
                                        0,
                                        0,
@@ -497,7 +793,7 @@ int main(int argc, char* argv[])
                 sendPacket(conn,
                            protocol::CmdLoginResp,
                            requestId,
-                           serializer::Serialize(loginResp),
+                           encodeLoginResp(loginResp),
                            protocol::kFlagResponse,
                            0,
                            0,
@@ -514,13 +810,13 @@ int main(int argc, char* argv[])
             sendPacket(conn,
                        protocol::CmdHeartbeatResp,
                        requestId,
-                       serializer::Serialize(heartbeatResp),
+                       encodeHeartbeatResp(heartbeatResp),
                        protocol::kFlagResponse);
         }
         else if (command == protocol::CmdP2pMsgReq)
         {
             protocol::P2PMsgReq p2pReq{};
-            const bool parsed = serializer::Deserialize(message, p2pReq);
+            const bool parsed = decodeP2PReq(message, p2pReq);
             auto userContext = authService->getUserContext(conn);
             metricsRegistry.incCounter("im_p2p_qps", 1, "Inbound p2p request count");
 
@@ -551,7 +847,7 @@ int main(int argc, char* argv[])
                     sendPacket(conn,
                                protocol::CmdP2pMsgResp,
                                requestId,
-                               serializer::Serialize(p2pResp),
+                               encodeP2PResp(p2pResp),
                                protocol::kFlagResponse,
                                0,
                                0,
@@ -579,7 +875,7 @@ int main(int argc, char* argv[])
                                 sendPacket(conn,
                                            protocol::CmdP2pMsgResp,
                                            requestId,
-                                           serializer::Serialize(asyncResp),
+                                           encodeP2PResp(asyncResp),
                                            protocol::kFlagResponse,
                                            0,
                                            0,
@@ -620,7 +916,7 @@ int main(int argc, char* argv[])
                         sendPacket(conn,
                                    protocol::CmdP2pMsgResp,
                                    requestId,
-                                   serializer::Serialize(asyncResp),
+                                   encodeP2PResp(asyncResp),
                                    protocol::kFlagResponse,
                                    asyncResp.msgId,
                                    asyncResp.serverSeq,
@@ -632,7 +928,7 @@ int main(int argc, char* argv[])
                     sendPacket(conn,
                                protocol::CmdP2pMsgResp,
                                requestId,
-                               serializer::Serialize(p2pResp),
+                               encodeP2PResp(p2pResp),
                                protocol::kFlagResponse,
                                0,
                                0,
@@ -644,7 +940,7 @@ int main(int argc, char* argv[])
             sendPacket(conn,
                        protocol::CmdP2pMsgResp,
                        requestId,
-                       serializer::Serialize(p2pResp),
+                       encodeP2PResp(p2pResp),
                        protocol::kFlagResponse,
                        p2pResp.msgId,
                        p2pResp.serverSeq,
@@ -653,7 +949,7 @@ int main(int argc, char* argv[])
         else if (command == protocol::CmdMessageAckReq)
         {
             protocol::MessageAckReq ackReq{};
-            const bool parsed = serializer::Deserialize(message, ackReq);
+            const bool parsed = decodeAckReq(message, ackReq);
             auto userContext = authService->getUserContext(conn);
 
             protocol::MessageAckResp ackResp{};
@@ -696,7 +992,7 @@ int main(int argc, char* argv[])
                         sendPacket(conn,
                                    protocol::CmdMessageAckResp,
                                    requestId,
-                                   serializer::Serialize(asyncResp),
+                                   encodeAckResp(asyncResp),
                                    protocol::kFlagResponse | protocol::kFlagAck,
                                    ackReq.msgId,
                                    asyncResp.serverSeq,
@@ -708,7 +1004,7 @@ int main(int argc, char* argv[])
                     sendPacket(conn,
                                protocol::CmdMessageAckResp,
                                requestId,
-                               serializer::Serialize(ackResp),
+                               encodeAckResp(ackResp),
                                protocol::kFlagResponse | protocol::kFlagAck,
                                ackReq.msgId,
                                0,
@@ -720,7 +1016,7 @@ int main(int argc, char* argv[])
             sendPacket(conn,
                        protocol::CmdMessageAckResp,
                        requestId,
-                       serializer::Serialize(ackResp),
+                       encodeAckResp(ackResp),
                        protocol::kFlagResponse | protocol::kFlagAck,
                        ackReq.msgId,
                        ackResp.serverSeq,
@@ -729,7 +1025,7 @@ int main(int argc, char* argv[])
         else if (command == protocol::CmdPullOfflineReq)
         {
             protocol::PullOfflineReq pullReq{};
-            const bool parsed = serializer::Deserialize(message, pullReq);
+            const bool parsed = decodePullReq(message, pullReq);
             auto userContext = authService->getUserContext(conn);
 
             protocol::PullOfflineResp pullResp{};
@@ -768,7 +1064,7 @@ int main(int argc, char* argv[])
                         sendPacket(conn,
                                    protocol::CmdPullOfflineResp,
                                    requestId,
-                                   serializer::Serialize(asyncResp),
+                                   encodePullResp(asyncResp),
                                    protocol::kFlagResponse,
                                    0,
                                    asyncResp.nextBeginSeq,
@@ -780,7 +1076,7 @@ int main(int argc, char* argv[])
                     sendPacket(conn,
                                protocol::CmdPullOfflineResp,
                                requestId,
-                               serializer::Serialize(pullResp),
+                               encodePullResp(pullResp),
                                protocol::kFlagResponse,
                                0,
                                0,
@@ -792,7 +1088,7 @@ int main(int argc, char* argv[])
             sendPacket(conn,
                        protocol::CmdPullOfflineResp,
                        requestId,
-                       serializer::Serialize(pullResp),
+                       encodePullResp(pullResp),
                        protocol::kFlagResponse,
                        0,
                        pullResp.nextBeginSeq,
@@ -801,7 +1097,7 @@ int main(int argc, char* argv[])
         else if (command == protocol::CmdBroadcastMsgReq)
         {
             protocol::BroadcastMsgReq broadcastReq;
-            const bool parsed = serializer::Deserialize(message, broadcastReq);
+            const bool parsed = decodeBroadcastReq(message, broadcastReq);
             auto userContext = authService->getUserContext(conn);
             if (!parsed || !userContext)
             {
@@ -829,7 +1125,21 @@ int main(int argc, char* argv[])
         else if (command == protocol::CmdKickUserReq)
         {
             protocol::KickUserReq kickReq;
-            serializer::Deserialize(message, kickReq);
+            if (!decodeKickReq(message, kickReq))
+            {
+                protocol::KickUserResp kickResp;
+                kickResp.resultCode = 1;
+                kickResp.resultMsg = "invalid kick payload";
+                sendPacket(conn,
+                           protocol::CmdKickUserResp,
+                           requestId,
+                           encodeKickResp(kickResp),
+                           protocol::kFlagResponse,
+                           0,
+                           0,
+                           protocol::ErrInvalidPacket);
+                return;
+            }
             LOG_INFO("Kick user request: target={}, reason={}",
                      kickReq.targetUserId, kickReq.reason);
 
@@ -840,7 +1150,7 @@ int main(int argc, char* argv[])
             sendPacket(conn,
                        protocol::CmdKickUserResp,
                        requestId,
-                       serializer::Serialize(kickResp),
+                       encodeKickResp(kickResp),
                        protocol::kFlagResponse);
 
             LOG_INFO("Kick user response sent: target={}", kickReq.targetUserId);

@@ -114,7 +114,7 @@ target_link_libraries(server_full PRIVATE server_lib)
 add_executable(benchmarkClient
 	${BASE_SOURCES_WITH_REDIS}
 	${CODEC_SOURCES}
-	../test/benchmarkClient.cpp
+	../tests/benchmark/benchmarkClient.cpp
 )
 target_include_directories(benchmarkClient PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(benchmarkClient PRIVATE server_lib spdlog::spdlog nlohmann_json::nlohmann_json pthread)  #添加server_lib
@@ -128,7 +128,7 @@ endif()
 add_executable(interactiveClient
 	${BASE_SOURCES}
 	${CODEC_SOURCES}
-	../test/interactiveClient.cpp
+	../tests/interact/interactiveClient.cpp
 )
 target_include_directories(interactiveClient PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(interactiveClient PRIVATE server_lib spdlog::spdlog nlohmann_json::nlohmann_json pthread)  #添加server_lib

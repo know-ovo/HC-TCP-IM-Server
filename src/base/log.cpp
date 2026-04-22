@@ -1,5 +1,7 @@
 #include "base/log.h"
 
+#include <chrono>
+#include <filesystem>
 #include <memory>
 
 #include <spdlog/pattern_formatter.h>
@@ -38,6 +40,13 @@ void Log::init(const std::string& logName,
 {
     try
     {
+        const std::filesystem::path filePath(logPath);
+        if (filePath.has_parent_path())
+        {
+            std::error_code ec;
+            std::filesystem::create_directories(filePath.parent_path(), ec);
+        }
+
         auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         auto fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
             logPath, maxFileSize, maxFiles);
@@ -54,7 +63,8 @@ void Log::init(const std::string& logName,
         s_logger->set_formatter(std::move(formatter));
 
         spdlog::set_default_logger(s_logger);
-        spdlog::flush_on(spdlog::level::err);
+        spdlog::flush_on(spdlog::level::info);
+        spdlog::flush_every(std::chrono::seconds(1));
     }
     catch (const spdlog::spdlog_ex& ex)
     {
